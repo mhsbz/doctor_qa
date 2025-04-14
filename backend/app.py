@@ -28,7 +28,9 @@ migrate = Migrate(app, db)
 
 # 注册蓝图
 from controllers.user_controller import user_bp
+from controllers.article_controller import article_bp
 app.register_blueprint(user_bp, url_prefix='/api')
+app.register_blueprint(article_bp, url_prefix='/api')
 
 if __name__ == '__main__':
     with app.app_context():
