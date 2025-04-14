@@ -9,7 +9,7 @@
 
 ### 1. 用户注册
 
-- **URL**: `/register`
+- **URL**: `/api/register`
 - **方法**: POST
 - **描述**: 新用户注册
 - **请求参数**:
@@ -25,7 +25,7 @@
   ```
 - **curl示例**:
   ```bash
-  curl -X POST http://localhost:5000/register \
+  curl -X POST http://127.0.0.1:5000/api/register \
     -H "Content-Type: application/json" \
     -d '{
       "username": "testuser",
@@ -53,7 +53,7 @@
 
 ### 2. 用户登录
 
-- **URL**: `/login`
+- **URL**: `/api/login`
 - **方法**: POST
 - **描述**: 用户登录认证
 - **请求参数**:
@@ -66,7 +66,7 @@
   ```
 - **curl示例**:
   ```bash
-  curl -X POST http://localhost:5000/login \
+  curl -X POST http://127.0.0.1:5000/api/login \
     -H "Content-Type: application/json" \
     -d '{
       "username": "testuser",

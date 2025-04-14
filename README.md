@@ -10,9 +10,9 @@
 - MySQL 数据库
 
 ### 数据库配置
-1. 创建MySQL数据库：
-```sql
-CREATE DATABASE doctor_qa CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+1. 启动mysql服务：
+```bash
+docker compose up -d mysql
 ```
 
 2. 配置环境变量：
@@ -37,15 +37,9 @@ pip install -r requirements.txt
 - MySQL-Connector-Python 8.3.0
 - Python-dotenv 1.0.1
 
-### 初始化数据库
-```bash
-flask db init
-flask db migrate
-flask db upgrade
-```
-
 ### 启动后端服务
 ```bash
+cd backend
 python app.py
 ```
 服务将在 http://localhost:5000 启动

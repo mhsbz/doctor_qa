@@ -1,42 +1,16 @@
 version: '3.8'
-
 services:
-  db:
+  mysql:
     image: mysql:8.0
-    restart: always
+    container_name: doctor_qa_mysql
     environment:
+      MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: doctor_qa
-      MYSQL_USER: doctor_qa
-      MYSQL_PASSWORD: doctor_qa_password
-      MYSQL_ROOT_PASSWORD: root_password
-    volumes:
-      - mysql_data:/var/lib/mysql
     ports:
       - "3306:3306"
-
-  # backend:
-  #   build:
-  #     context: ./backend
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   environment:
-  #     FLASK_APP: app.py
-  #     FLASK_ENV: development
-  #     DATABASE_URL: mysql://doctor_qa:doctor_qa_password@db/doctor_qa
-  #   ports:
-  #     - "5000:5000"
-  #   depends_on:
-  #     - db
-
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   ports:
-  #     - "80:80"
-  #   depends_on:
-  #     - backend
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 
 volumes:
   mysql_data:

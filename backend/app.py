@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_cors import CORS
 import os
 from dotenv import load_dotenv
 import sys
@@ -16,9 +17,11 @@ from models.user import db
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///doctor_qa.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'mysql+mysqlconnector://root:password@localhost/doctor_qa')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+CORS(app)
 
+print(app.config)
 # 初始化数据库
 db.init_app(app)
 migrate = Migrate(app, db)
