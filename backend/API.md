@@ -100,15 +100,9 @@
 - **方法**: GET
 - **描述**: 获取文章列表
 - **请求参数**:
-  ```json
-  {
-    "page": "number",  // 页码
-    "page_size": "number"  // 每页数量
-  }
-  ```
 - **curl示例**:
   ```bash
-  curl -X GET http://127.0.0.1:5000/api/articles?page=1&page_size=10
+  curl -X GET http://127.0.0.1:5000/api/articles
   ```
 - **响应示例**:
   - 成功 (200):
@@ -117,9 +111,11 @@
       "total": 100,
       "articles": [
         {
-          "image_url": "string",
-          "title": "string",
-          "content": "string"
+          "content": "1111",
+          "id": 1,
+          "image_url": "111",
+          "likes": 2,
+          "title": "test"
         }
       ]
     }
