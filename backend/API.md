@@ -78,9 +78,14 @@
   - 成功 (200):
     ```json
     {
-      "user_id": 123,
-      "user_type": "user"
-    }
+    "message": "登录成功",
+    "user_info": {
+        "user_id": 1,
+        "user_type": "user",
+        "username": "testuser"
+    },
+    "user_type": "user"
+  }
     ```
   - 失败 (401):
     ```json
