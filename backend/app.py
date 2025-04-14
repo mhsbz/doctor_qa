@@ -11,7 +11,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent))
 
 # 从models中导入db实例
-from models.user import db
+from models.db import db
 
 # 加载环境变量
 load_dotenv()
