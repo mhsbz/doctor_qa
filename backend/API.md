@@ -127,6 +127,38 @@
     }
     ```
 
+### 4. 文章点赞
+
+- **URL**: `/api/articles/{id}/like`
+- **方法**: POST
+- **描述**: 给指定文章点赞
+- **请求头**:
+  - `Authorization: Bearer <token>`
+- **curl示例**:
+  ```bash
+  curl -X POST http://127.0.0.1:5000/api/articles/1/like
+  ```
+- **响应示例**:
+  - 成功 (200):
+    ```json
+    {
+      "message": "点赞成功",
+      "likes": 3
+    }
+    ```
+  - 失败 (401):
+    ```json
+    {
+      "error": "未授权访问"
+    }
+    ```
+  - 失败 (404):
+    ```json
+    {
+      "error": "文章不存在"
+    }
+    ```
+
 ## 错误码说明
 
 - 200: 请求成功
