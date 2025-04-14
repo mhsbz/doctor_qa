@@ -159,6 +159,50 @@
     }
     ```
 
+### 5. 创建评论
+
+- **URL**: `/api/comments`
+- **方法**: POST
+- **描述**: 创建新的评论
+- **请求参数**:
+  ```json
+  {
+    "article_id": 1,          // 文章ID
+    "user_id": 123,          // 用户ID
+    "content": "精彩内容"    // 评论内容
+  }
+  ```
+- **curl示例**:
+  ```bash
+  curl -X POST http://127.0.0.1:5000/api/comments \
+    -H "Content-Type: application/json" \
+    -d '{
+      "article_id": 1,
+      "user_id": 123,
+      "content": "非常有帮助"
+    }'
+  ```
+- **响应示例**:
+  - 成功 (201):
+    ```json
+    {
+      "message": "评论创建成功",
+      "comment_id": 456
+    }
+    ```
+  - 失败 (400):
+    ```json
+    {
+      "error": "缺少必要参数"
+    }
+    ```
+  - 失败 (404):
+    ```json
+    {
+      "error": "文章或用户不存在"
+    }
+    ```
+
 ## 错误码说明
 
 - 200: 请求成功
