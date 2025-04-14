@@ -203,6 +203,37 @@
     }
     ```
 
+### 6. 评论列表
+
+- **URL**: `/api/articles/{id}/comments`
+- **方法**: GET
+- **描述**: 获取指定文章的评论列表
+- **路径参数**:
+  - `id`: 文章ID
+- **curl示例**:
+  ```bash
+  curl -X GET http://127.0.0.1:5000/api/articles/1/comments
+  ```
+- **响应示例**:
+  - 成功 (200):
+    ```json
+    {
+      "comments": [
+        {
+          "username": "testuser",
+          "content": "非常有帮助",
+          "created_at": "2024-05-20T10:30:00Z"
+        }
+      ]
+    }
+    ```
+  - 失败 (404):
+    ```json
+    {
+      "error": "文章不存在"
+    }
+    ```
+
 ## 错误码说明
 
 - 200: 请求成功
