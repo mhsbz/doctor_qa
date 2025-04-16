@@ -31,6 +31,10 @@ def login():
     if not all(field in data for field in required_fields):
         return jsonify({'error': '用户名和密码不能为空'}), 400
     
+    # 获取用户类型，默认为普通用户
+    user_type = data.get('user_type', 'user')
+    data['user_type'] = user_type
+    
     success, result = login_user(data)
     
     if success:
