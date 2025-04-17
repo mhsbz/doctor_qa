@@ -2,13 +2,25 @@
   <div class="home-container">
     <!-- 顶部导航栏 -->
     <div class="nav-bar">
-      <div class="nav-item active" @click="switchTab('health')">
+      <div 
+        class="nav-item" 
+        :class="{ active: currentTab === 'health' }" 
+        @click="switchTab('health')"
+      >
         健康资讯
       </div>
-      <div class="nav-item" @click="switchTab('ai')">
+      <div 
+        class="nav-item" 
+        :class="{ active: currentTab === 'ai' }" 
+        @click="switchTab('ai')"
+      >
         AI问答
       </div>
-      <div class="nav-item" @click="switchTab('feedback')">
+      <div 
+        class="nav-item" 
+        :class="{ active: currentTab === 'feedback' }" 
+        @click="switchTab('feedback')"
+      >
         意见反馈
       </div>
       <div class="user-center">
@@ -21,7 +33,8 @@
       <div class="article-list">
         <div class="article-item" v-for="(article, index) in articles" :key="index" @click="viewArticle(article.id)">
           <div class="article-image">
-            <div class="placeholder-image">文章图片</div>
+            <img v-if="article.imageUrl" :src="article.imageUrl" alt="文章图片" class="real-image">
+            <div v-else class="placeholder-image">文章图片</div>
           </div>
           <div class="article-content">
             <h3 class="article-title">{{ article.title }}</h3>
@@ -51,28 +64,14 @@
 </template>
 
 <script>
+import { getArticles } from '../services/articleService';
+
 export default {
   name: 'HomeComponent',
   data() {
     return {
       currentTab: 'health',
-      articles: [
-        {
-          id: 1,
-          title: '如何保持健康的生活方式',
-          summary: '本文介绍了日常生活中保持健康的几个关键因素，包括均衡饮食、规律作息和适当运动等方面的建议。',
-        },
-        {
-          id: 2,
-          title: '常见感冒的预防与治疗',
-          summary: '感冒是最常见的疾病之一，本文详细介绍了感冒的预防措施和家庭治疗方法，帮助您快速恢复健康。',
-        },
-        {
-          id: 3,
-          title: '高血压患者的饮食指南',
-          summary: '针对高血压患者的特殊需求，本文提供了详细的饮食建议和注意事项，帮助控制血压和改善健康状况。',
-        }
-      ]
+      articles: []
     }
   },
   methods: {
@@ -81,8 +80,8 @@ export default {
     },
     viewArticle(id) {
       console.log('查看文章详情:', id);
-      // 后续实现跳转到文章详情页面
-      // this.$router.push(`/article/${id}`);
+      // 跳转到文章详情页面
+      this.$router.push(`/article/${id}`);
     },
     goToUserCenter() {
       console.log('跳转到个人中心');
@@ -91,11 +90,15 @@ export default {
     },
     async fetchArticles() {
       try {
-        // 模拟从后端获取文章列表数据
-        // 实际项目中应该替换为真实的API调用
-        // const response = await fetch('/api/articles');
-        // const data = await response.json();
-        // this.articles = data;
+        // 从后端获取文章列表数据
+        const articles = await getArticles();
+        // 将API返回的数据映射到组件的articles数组
+        this.articles = articles.map(article => ({
+          id: article.id,
+          title: article.title,
+          summary: article.content,
+          imageUrl: article.image_url
+        }));
       } catch (error) {
         console.error('获取文章列表失败:', error);
       }
@@ -103,7 +106,7 @@ export default {
   },
   mounted() {
     // 组件挂载后获取文章列表
-    // this.fetchArticles();
+    this.fetchArticles();
   }
 }
 </script>
@@ -203,6 +206,12 @@ export default {
   color: #999;
   text-align: center;
   padding: 40px 0;
+}
+
+.real-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .article-content {

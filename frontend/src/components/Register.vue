@@ -90,6 +90,8 @@
 </template>
 
 <script>
+import { register } from '../services/authService';
+
 export default {
   name: 'RegisterComponent',
   data() {
@@ -141,28 +143,17 @@ export default {
           user_type: 'user' // 默认注册为普通用户
         };
         
-        // 发送注册请求
-        const response = await fetch('/api/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(registerData)
-        });
+        // 使用authService进行注册
+        const data = await register(registerData);
         
-        const data = await response.json();
-        
-        if (response.ok) {
+        {
           // 注册成功，跳转到登录页面
           alert('注册成功，请登录');
           this.goToLogin();
-        } else {
-          // 注册失败，显示错误信息
-          this.errorMessage = data.error || '注册失败';
         }
       } catch (error) {
         console.error('注册请求出错:', error);
-        this.errorMessage = '网络错误，请稍后再试';
+        this.errorMessage = error.message || '网络错误，请稍后再试';
       }
     },
     goToLogin() {
