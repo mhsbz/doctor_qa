@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 # 修正导入路径
-from services.user_service import register_user, login_user
+from services.user_service import register_user, login_user, update_user_info
 
 user_bp = Blueprint('user', __name__)
 
@@ -45,3 +45,28 @@ def login():
         }), 200
     else:
         return jsonify({'error': result}), 401
+
+@user_bp.route('/update_profile', methods=['PUT'])
+def update_profile():
+    data = request.get_json()
+    
+    # 验证必填字段
+    if 'user_id' not in data:
+        return jsonify({'error': '缺少用户ID'}), 400
+    
+    # 可更新的字段
+    updateable_fields = ['username', 'gender', 'region', 'phone', 'email']
+    
+    # 检查是否有至少一个可更新字段
+    if not any(field in data for field in updateable_fields):
+        return jsonify({'error': '没有提供任何可更新的字段'}), 400
+    
+    success, result = update_user_info(data)
+    
+    if success:
+        return jsonify({
+            'message': '个人信息更新成功',
+            'user_info': result
+        }), 200
+    else:
+        return jsonify({'error': result}), 400

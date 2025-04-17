@@ -50,3 +50,47 @@ def create_comment(data):
     db.session.add(new_comment)
     db.session.commit()
     return new_comment
+
+
+def update_comment(data, user):
+    """
+    更新评论
+    :param data: 包含评论ID和新内容的字典
+    :param user: 当前用户对象
+    :return: 更新后的评论对象
+    """
+    # 验证用户权限
+    if user.user_type != 'admin':
+        raise ValueError('只有管理员可以修改评论')
+    
+    # 验证评论存在
+    comment = Comment.query.get(data.get('comment_id'))
+    if not comment:
+        raise ValueError('评论不存在')
+    
+    # 更新评论内容
+    comment.content = data.get('content', comment.content)
+    
+    db.session.commit()
+    return comment
+
+
+def delete_comment(comment_id, user):
+    """
+    删除评论
+    :param comment_id: 评论ID
+    :param user: 当前用户对象
+    :return: 被删除的评论ID
+    """
+    # 验证用户权限
+    if user.user_type != 'admin':
+        raise ValueError('只有管理员可以删除评论')
+    
+    # 验证评论存在
+    comment = Comment.query.get(comment_id)
+    if not comment:
+        raise ValueError('评论不存在')
+    
+    db.session.delete(comment)
+    db.session.commit()
+    return comment_id

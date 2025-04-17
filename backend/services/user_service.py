@@ -44,3 +44,49 @@ def register_user(user_data):
     except Exception as e:
         db.session.rollback()
         return False, str(e)
+
+def update_user_info(user_data):
+    """
+    更新用户个人信息
+    :param user_data: 包含用户ID和需要更新的信息字段的字典
+    :return: (success, result) success为布尔值，result为成功时的用户信息或失败时的错误信息
+    """
+    user_id = user_data.get('user_id')
+    user = User.query.get(user_id)
+    
+    if not user:
+        return False, '用户不存在'
+    
+    try:
+        # 检查是否有用户名更新，如果有则检查是否与其他用户冲突
+        if 'username' in user_data and user_data['username'] != user.username:
+            existing_user = User.query.filter_by(username=user_data['username']).first()
+            if existing_user and existing_user.id != user_id:
+                return False, '用户名已被占用'
+            user.username = user_data['username']
+        
+        # 更新其他字段
+        if 'gender' in user_data:
+            user.gender = user_data['gender']
+        if 'region' in user_data:
+            user.region = user_data['region']
+        if 'phone' in user_data:
+            user.phone = user_data['phone']
+        if 'email' in user_data:
+            user.email = user_data['email']
+        
+        db.session.commit()
+        
+        # 返回更新后的用户信息
+        return True, {
+            'user_id': user.id,
+            'username': user.username,
+            'gender': user.gender,
+            'region': user.region,
+            'phone': user.phone,
+            'email': user.email,
+            'user_type': user.user_type
+        }
+    except Exception as e:
+        db.session.rollback()
+        return False, str(e)
