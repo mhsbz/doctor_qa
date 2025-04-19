@@ -286,7 +286,51 @@
     }
     ```
 
-### 7. 提交反馈
+### 7. 文章详情
+
+- **URL**: `/api/articles/{id}`
+- **方法**: GET
+- **描述**: 获取指定文章的详细信息
+- **路径参数**:
+  - `id`: 文章ID
+- **curl示例**:
+  ```bash
+  curl -X GET http://127.0.0.1:5000/api/articles/1
+  ```
+- **响应示例**:
+  - 成功 (200):
+    ```json
+    {
+      "article": {
+        "id": 1,
+        "title": "常见感冒症状及治疗方法",
+        "content": "感冒是由病毒引起的上呼吸道感染...",
+        "image_url": "https://example.com/images/cold.jpg",
+        "published_at": "2024-05-15T08:30:00Z",
+        "likes": 42,
+        "comments": [
+          {
+            "username": "user123",
+            "content": "这篇文章很有帮助",
+            "created_at": "2024-05-16T10:15:00Z"
+          },
+          {
+            "username": "healthexpert",
+            "content": "建议多喝水，多休息",
+            "created_at": "2024-05-16T14:22:00Z"
+          }
+        ]
+      }
+    }
+    ```
+  - 失败 (404):
+    ```json
+    {
+      "error": "文章不存在"
+    }
+    ```
+
+### 8. 提交反馈
 
 - **URL**: `/api/feedback`
 - **方法**: POST

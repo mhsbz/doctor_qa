@@ -78,17 +78,12 @@ export default {
         // 使用authService进行登录
         const data = await login(loginData);
         
-        // 登录成功后跳转到首页
+        // 登录成功后根据用户类型跳转
         // 注意：登录成功后用户信息已在authService.js中自动存储
-        this.$router.push('/home');
-        
-        // 根据用户类型可以执行不同操作
         if (data.user_type === 'admin') {
-          console.log('管理员登录成功');
-          // 可以添加管理员特定的操作
++          this.$router.push('/home'); // 管理员跳转到主页
         } else {
-          console.log('用户登录成功');
-          // 可以添加普通用户特定的操作
+          this.$router.push('/home'); // 普通用户跳转到用户主页
         }
       } catch (error) {
         console.error('登录请求出错:', error);

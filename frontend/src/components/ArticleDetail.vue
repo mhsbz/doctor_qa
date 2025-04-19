@@ -6,7 +6,14 @@
         <span>&lt; 返回</span>
       </div>
       <div class="title">文章详情</div>
-      <div class="placeholder"></div>
+      <div class="user-menu">
+        <div class="user-icon" @click="toggleUserMenu">👤</div>
+        <div class="dropdown-menu" v-if="showUserMenu">
+          <div class="menu-item" @click="goToUserProfile">个人中心</div>
+          <div class="menu-item" @click="goToUserLikes">我的点赞</div>
+          <div class="menu-item" @click="logout">退出登录</div>
+        </div>
+      </div>
     </div>
 
     <!-- 文章内容区域 -->
@@ -84,12 +91,29 @@ export default {
       article: null,
       comments: [],
       newComment: '',
-      hasLiked: false
+      hasLiked: false,
+      showUserMenu: false
     };
   },
   methods: {
     goBack() {
       this.$router.push('/home');
+    },
+    toggleUserMenu() {
+      this.showUserMenu = !this.showUserMenu;
+    },
+    goToUserProfile() {
+      this.$router.push('/user-profile');
+      this.showUserMenu = false;
+    },
+    goToUserLikes() {
+      this.$router.push('/user-likes');
+      this.showUserMenu = false;
+    },
+    logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('userInfo');
+      this.$router.push('/login');
     },
     async fetchArticleDetail() {
       try {
@@ -100,10 +124,23 @@ export default {
           title: articleData.title,
           content: articleData.content,
           imageUrl: articleData.image_url,
-          publishDate: articleData.publish_date,
-          author: articleData.author,
-          likes: articleData.likes
+          publishDate: articleData.updated_at ? new Date(articleData.updated_at).toLocaleDateString('zh-CN') : '发布时间未知',
+          author: articleData.author || '匿名作者',
+          likes: articleData.likes || 0
         };
+        
+        // 如果API返回了评论数据，直接使用
+        if (articleData.comments) {
+          this.comments = articleData.comments.map(comment => ({
+            id: comment.id,
+            username: comment.username || '匿名用户',
+            content: comment.content,
+            createdAt: comment.created_at ? new Date(comment.created_at).toLocaleString('zh-CN') : '未知时间'
+          }));
+        } else {
+          // 否则通过单独的API获取评论
+          this.fetchComments();
+        }
       } catch (error) {
         console.error('获取文章详情失败:', error);
       }
@@ -151,8 +188,8 @@ export default {
     }
   },
   mounted() {
+    // 获取文章详情，文章详情API已包含评论数据
     this.fetchArticleDetail();
-    this.fetchComments();
   }
 };
 </script>
@@ -194,8 +231,37 @@ export default {
   font-weight: bold;
 }
 
-.placeholder {
+.user-menu {
+  position: relative;
   width: 50px;
+  display: flex;
+  justify-content: center;
+}
+
+.user-icon {
+  cursor: pointer;
+  font-size: 24px;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  width: 120px;
+  z-index: 100;
+}
+
+.menu-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.menu-item:hover {
+  background-color: #f5f5f5;
 }
 
 .content-area {
