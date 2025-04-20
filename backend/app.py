@@ -38,10 +38,12 @@ from controllers.user_controller import user_bp
 from controllers.article_controller import article_bp
 from controllers.comment_controller import comment_bp
 from controllers.feedback_controller import feedback_bp
+from controllers.chat_controller import chat_bp
 app.register_blueprint(user_bp, url_prefix='/api')
 app.register_blueprint(article_bp, url_prefix='/api')
 app.register_blueprint(comment_bp, url_prefix='/api')
 app.register_blueprint(feedback_bp, url_prefix='/api')
+app.register_blueprint(chat_bp, url_prefix='/api')
 
 if __name__ == '__main__':
     with app.app_context():

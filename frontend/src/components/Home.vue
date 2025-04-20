@@ -7,9 +7,10 @@
         :class="{ active: currentTab === 'health' }" 
         @click="switchTab('health')"
       >
-        健康资讯
+        {{ isAdmin ? '咨询管理' : '健康资讯' }}
       </div>
       <div 
+        v-if="!isAdmin"
         class="nav-item" 
         :class="{ active: currentTab === 'ai' }" 
         @click="switchTab('ai')"
@@ -21,7 +22,7 @@
         :class="{ active: currentTab === 'feedback' }" 
         @click="switchTab('feedback')"
       >
-        意见反馈
+        {{ isAdmin ? '用户意见' : '意见反馈' }}
       </div>
       <!-- 管理员操作区域 -->
       <div v-if="isAdmin" class="admin-actions">
@@ -357,11 +358,11 @@ export default {
       setTimeout(async () => {
         try {
           // 这里可以替换为实际的API调用
-          // const response = await apiPost('ai/chat', { question: userQuestion });
-          // const aiResponse = response.answer;
+          const response = await apiPost('chat', { question: userQuestion });
+          const aiResponse = response.answer;
           
           // 模拟回复
-          const aiResponse = "这是AI助手对您问题的回复。在实际开发中，这里将调用后端API获取真实的AI回答。";
+          // const aiResponse = "这是AI助手对您问题的回复。在实际开发中，这里将调用后端API获取真实的AI回答。";
           
           this.chatMessages.push({
             sender: 'ai',
