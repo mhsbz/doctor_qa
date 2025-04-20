@@ -39,7 +39,7 @@
       </div>
 
       <!-- 点赞区域 -->
-      <div class="like-section">
+      <div class="like-section" v-if="!isAdmin">
         <div class="like-button" @click="likeArticle" :class="{ 'liked': hasLiked }">
           <span class="like-icon">❤</span>
           <span class="like-count">{{ article.likes || 0 }}</span>
@@ -56,12 +56,17 @@
             <div class="comment-user">{{ comment.username }}</div>
             <div class="comment-content">{{ comment.content }}</div>
             <div class="comment-time">{{ comment.createdAt }}</div>
+            <!-- 管理员评论操作按钮 -->
+            <div v-if="isAdmin" class="comment-actions">
+              <button @click.stop="editComment(comment.id)" class="action-button edit-button">修改</button>
+              <button @click.stop="deleteComment(comment.id)" class="action-button delete-button">删除</button>
+            </div>
           </div>
         </div>
         <div v-else class="no-comments">暂无评论，快来发表第一条评论吧！</div>
 
         <!-- 发表评论 -->
-        <div class="comment-form">
+        <div class="comment-form" v-if="!isAdmin">
           <textarea 
             v-model="newComment" 
             placeholder="请输入您的评论..."
@@ -93,7 +98,8 @@ export default {
       comments: [],
       newComment: '',
       hasLiked: false,
-      showUserMenu: false
+      showUserMenu: false,
+      isAdmin: false
     };
   },
   methods: {
@@ -115,6 +121,22 @@ export default {
       localStorage.removeItem('token');
       localStorage.removeItem('userInfo');
       this.$router.push('/login');
+    },
+    checkUserRole() {
+      const userInfo = getUserInfo();
+      if (userInfo) {
+        this.isAdmin = userInfo.user_type === 'admin';
+      } else {
+        this.isAdmin = false;
+      }
+    },
+    editComment(commentId) {
+      // 实现修改评论逻辑
+      console.log('修改评论:', commentId);
+    },
+    deleteComment(commentId) {
+      // 实现删除评论逻辑
+      console.log('删除评论:', commentId);
     },
     async fetchArticleDetail() {
       try {
@@ -156,7 +178,7 @@ export default {
       }
     },
     async likeArticle() {
-      if (this.hasLiked) return;
+      if (this.hasLiked || this.isAdmin) return;
       
       try {
         const articleId = this.$route.params.id;
@@ -168,6 +190,11 @@ export default {
       }
     },
     async submitComment() {
+      if (this.isAdmin) {
+        alert('管理员不能发表评论');
+        return;
+      }
+      
       if (!this.newComment.trim()) {
         alert('评论内容不能为空');
         return;
@@ -192,6 +219,8 @@ export default {
   mounted() {
     // 获取文章详情，文章详情API已包含评论数据
     this.fetchArticleDetail();
+    // 检查用户角色
+    this.checkUserRole();
   }
 };
 </script>

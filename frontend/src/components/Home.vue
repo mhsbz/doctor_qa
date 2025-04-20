@@ -51,7 +51,7 @@
       <div :class="isAdmin ? 'article-list-admin' : 'article-list'">
         <div :class="isAdmin ? 'article-item-admin' : 'article-item'" v-for="article in articles" :key="article.id">
           <!-- 使用 isAdmin 判断是跳转详情还是包含管理操作 -->
-          <div :class="isAdmin ? 'article-info' : ''" @click="!isAdmin ? viewArticle(article.id) : null" :style="!isAdmin ? 'cursor: pointer; display: flex; align-items: center; gap: 15px; flex-grow: 1;' : ''">
+          <div :class="isAdmin ? 'article-info' : ''" @click="isAdmin ? adminViewArticle(article.id) : viewArticle(article.id)" :style="'cursor: pointer; display: flex; align-items: center; gap: 15px; flex-grow: 1;'">
             <div :class="isAdmin ? 'article-image-admin' : 'article-image'">
               <img v-if="article.imageUrl" :src="article.imageUrl" alt="文章图片" :class="isAdmin ? 'real-image-admin' : 'real-image'">
               <div v-else :class="isAdmin ? 'placeholder-image-admin' : 'placeholder-image'">{{ isAdmin ? '图片' : '文章图片' }}</div>
@@ -236,11 +236,13 @@ export default {
     },
     viewArticle(id) {
       console.log('查看文章详情:', id);
-      // 普通用户点击跳转详情
-      if (!this.isAdmin) {
-        this.$router.push(`/article/${id}`);
-      }
-      // 管理员点击不跳转，由按钮触发操作
+      // 所有用户点击都跳转详情
+      this.$router.push(`/article/${id}`);
+    },
+    
+    // 管理员查看文章详情
+    adminViewArticle(id) {
+      this.$router.push(`/article/${id}`);
     },
     toggleDropdown() {
       this.showDropdown = !this.showDropdown;
