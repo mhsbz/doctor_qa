@@ -191,28 +191,65 @@ export default {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  width: 100vw;
+  /* Keep width 100vw if full screen is desired, or adjust if needed */
+  width: 100vw; 
   background-color: #fff;
   box-shadow: none;
   margin: 0;
   padding: 0;
 }
 
+.nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  border-bottom: 1px solid #e0e0e0; /* Thinner border */
+  padding: 0 32px;
+  background: #fff;
+  font-size: 16px; /* Adjusted font size */
+  font-weight: normal; /* Adjusted font weight */
+}
+
+.title {
+  flex: 1;
+  text-align: center;
+  font-size: 18px; /* Adjusted font size */
+  font-weight: bold;
+  color: #333;
+}
+
+.admin-info {
+  min-width: 160px;
+  text-align: right;
+  font-size: 16px; /* Adjusted font size */
+  font-weight: normal; /* Adjusted font weight */
+  color: #555;
+}
+
+.back-button {
+  min-width: 100px;
+  cursor: pointer;
+  color: #555; /* Adjusted color */
+  font-size: 16px;
+}
+
 .content-area {
   flex-grow: 1;
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 0;
+  /* align-items: center; /* Remove vertical centering if form should start higher */
+  padding: 40px 0; /* Add some padding */
   margin: 0;
   background: #fff;
+  overflow-y: auto; /* Allow vertical scrolling within this area if content overflows */
 }
 
 .article-form {
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  width: 480px;
+  gap: 20px; /* Reduced gap */
+  width: 480px; /* Maintain width or adjust as needed */
   margin: 0 auto;
   background: none;
   box-shadow: none;
@@ -221,138 +258,65 @@ export default {
 
 .form-group {
   display: flex;
-  align-items: center;
-  margin-bottom: 24px;
-}
-.form-label {
-  width: 120px;
-  font-size: 18px;
-  font-weight: bold;
-  color: #222;
-  margin-right: 16px;
-  text-align: right;
-}
-.form-input,
-.form-textarea {
-  flex: 1;
-  font-size: 16px;
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-.submit-group {
-  justify-content: center;
-  margin-top: 32px;
-}
-.submit-button {
-  width: 100px;
-  height: 40px;
-  font-size: 18px;
-  background: #2196f3;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.submit-button:disabled {
-  background: #90caf9;
-  cursor: not-allowed;
-}
-.nav-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 56px;
-  border-bottom: 2px solid #ccc;
-  padding: 0 32px;
-  background: #fff;
-  font-size: 20px;
-  font-weight: bold;
-}
-.title {
-  flex: 1;
-  text-align: center;
-  font-size: 22px;
-  font-weight: bold;
-}
-.admin-info {
-  min-width: 160px;
-  text-align: right;
-  font-size: 18px;
-  font-weight: bold;
-}
-.back-button {
-  min-width: 100px;
-  cursor: pointer;
-  color: #888;
-  font-size: 16px;
-}
-.image-upload-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-.image-preview {
-  width: 48px;
-  height: 48px;
-  background-size: cover;
-  background-position: center;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-.upload-placeholder {
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px dashed #bbb;
-  border-radius: 4px;
-  color: #bbb;
-  font-size: 14px;
+  align-items: flex-start; /* Align items to the top */
+  margin-bottom: 16px; /* Reduced margin */
 }
 
-.form-input {
-  width: 100%;
-  padding: 14px 16px;
-  border: 1px solid #d0d7de;
-  border-radius: 6px;
-  font-size: 15px;
+.form-label {
+  width: 80px; /* Fixed width for labels */
+  font-size: 16px; /* Adjusted font size */
+  font-weight: normal; /* Adjusted font weight */
+  color: #333; /* Adjusted color */
+  margin-right: 10px;
+  text-align: right; /* Right align labels */
+  padding-top: 5px; /* Align label text better with input */
+  flex-shrink: 0; /* Prevent label from shrinking */
+}
+
+.form-input,
+.form-textarea,
+.image-upload-wrapper { /* Apply common styles */
+  flex: 1; /* Allow input elements to take remaining space */
+  font-size: 14px; /* Adjusted font size */
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
   box-sizing: border-box;
-  background: #fafbfc;
-  transition: border-color 0.2s;
+  background: #fff; /* Simple white background */
 }
 
 .form-input:focus,
 .form-textarea:focus {
   border-color: #2196f3;
   outline: none;
+  box-shadow: none; /* Remove focus shadow */
 }
 
 .form-textarea {
   resize: vertical;
-  min-height: 180px;
+  min-height: 100px; /* Reduced min-height */
   font-family: inherit;
 }
 
+/* Image Upload Specific Styles */
 .image-upload-wrapper {
-  border: 2px dashed #b0bec5;
-  border-radius: 6px;
-  padding: 24px;
+  border: 1px solid #ccc; /* Simple solid border */
+  border-radius: 4px;
+  padding: 0; /* Remove padding */
   text-align: center;
   cursor: pointer;
   position: relative;
-  min-height: 180px;
+  min-height: 40px; /* Adjust height to match input */
+  height: 40px; /* Fixed height */
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f8fafc;
+  background: #fff;
   transition: border-color 0.2s;
 }
 
 .image-upload-wrapper:hover {
-  border-color: #2196f3;
+  border-color: #999;
 }
 
 .file-input {
@@ -366,54 +330,63 @@ export default {
 }
 
 .upload-placeholder span {
-  color: #b0bec5;
-  font-size: 15px;
+  display: none; /* Hide placeholder text */
 }
 
 .image-preview {
-  width: 100%;
-  height: 160px;
-  background-size: contain;
+  width: 36px; /* Smaller preview inside the box */
+  height: 36px;
+  background-size: cover; /* Changed to cover */
   background-repeat: no-repeat;
   background-position: center;
-  border-radius: 4px;
-  border: 1px solid #e0e0e0;
-  background-color: #fff;
+  border-radius: 2px;
+  border: none; /* Remove border */
+  background-color: #eee; /* Placeholder color if needed */
 }
 
+/* Submit Button Styles */
 .submit-group {
-  text-align: center;
+  justify-content: flex-start; /* Align button container to the left */
+  margin-top: 20px; /* Reduced margin */
+  padding-left: 90px; /* Offset button to align under inputs (label width + margin) */
 }
 
 .submit-button {
-  padding: 14px 56px;
-  background-color: #2196f3;
-  color: white;
-  border: none;
-  border-radius: 6px;
+  width: auto; /* Auto width based on content */
+  height: 35px; /* Adjusted height */
+  padding: 0 20px; /* Horizontal padding */
+  font-size: 16px; /* Adjusted font size */
+  background: #f0f0f0; /* Light gray background */
+  color: #333; /* Dark text */
+  border: 1px solid #ccc; /* Simple border */
+  border-radius: 4px;
   cursor: pointer;
-  font-weight: bold;
-  font-size: 18px;
-  transition: background-color 0.3s;
-  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.08);
+  transition: background 0.2s, border-color 0.2s;
+  font-weight: normal;
+  box-shadow: none;
 }
 
 .submit-button:hover:not(:disabled) {
-  background-color: #1976d2;
+  background-color: #e0e0e0;
+  border-color: #bbb;
 }
 
 .submit-button:disabled {
-  background-color: #b0bec5;
+  background: #f5f5f5;
+  color: #aaa;
+  border-color: #ddd;
   cursor: not-allowed;
 }
 
+/* Message Styles */
 .submit-message {
-  padding: 12px;
+  padding: 10px;
   border-radius: 4px;
   text-align: center;
-  margin-top: 24px;
-  font-weight: bold;
-  font-size: 16px;
+  margin-top: 16px;
+  font-weight: normal;
+  font-size: 14px;
+  margin-left: 90px; /* Align message under inputs */
 }
 
 .success {
@@ -427,4 +400,10 @@ export default {
   color: #c62828;
   border: 1px solid #ffcdd2;
 }
+
+/* Hide default file input appearance if needed, though opacity: 0 usually handles this */
+input[type="file"] {
+   /* Add styles if needed to hide browser default */
+}
+
 </style>
