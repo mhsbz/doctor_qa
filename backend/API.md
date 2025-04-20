@@ -148,6 +148,115 @@
 
 ### 3. 文章列表
 
+### 4. 创建文章
+
+- **URL**: `/api/articles`
+- **方法**: POST
+- **描述**: 创建一篇新文章
+- **请求体**: 
+  ```json
+  {
+    "title": "string",       // 文章标题 (必填)
+    "content": "string",     // 文章内容 (必填)
+    "image_url": "string"  // 文章图片URL (可选)
+  }
+  ```
+- **curl示例**:
+  ```bash
+  curl -X POST http://127.0.0.1:5000/api/articles \
+    -H "Content-Type: application/json" \
+    -d '{
+      "title": "新文章标题",
+      "content": "这是新文章的内容。",
+      "image_url": "http://example.com/image.jpg"
+    }'
+  ```
+- **响应示例**:
+  - 成功 (201):
+    ```json
+    {
+      "id": 124,
+      "title": "新文章标题",
+      "content": "这是新文章的内容。",
+      "image_url": "http://example.com/image.jpg",
+      "likes": 0,
+      "created_at": "2023-10-27T10:00:00Z",
+      "updated_at": "2023-10-27T10:00:00Z"
+    }
+    ```
+  - 失败 (400):
+    ```json
+    {
+      "error": "缺少标题或内容"
+    }
+    ```
+
+### 5. 修改文章
+
+- **URL**: `/api/articles/{id}`
+
+### 6. 删除文章
+
+- **URL**: `/api/articles/{article_id}`
+- **Method**: `DELETE`
+- **URL Params**: `article_id=[integer]` (必填)
+- **Success Response**:
+  - **Code**: 200
+  - **Content**: `{ "message": "文章删除成功" }`
+- **Error Response**:
+  - **Code**: 404 NOT FOUND
+  - **Content**: `{ "error": "文章不存在" }`
+  - **Code**: 500 INTERNAL SERVER ERROR
+  - **Content**: `{ "error": "服务器内部错误信息" }`
+- **方法**: PUT
+- **描述**: 修改指定ID的文章信息
+- **路径参数**:
+  - `id`: 文章的唯一标识符
+- **请求体**: 
+  ```json
+  {
+    "title": "string",       // 文章标题 (可选)
+    "content": "string",     // 文章内容 (可选)
+    "image_url": "string"  // 文章图片URL (可选)
+  }
+  ```
+- **curl示例**:
+  ```bash
+  curl -X PUT http://127.0.0.1:5000/api/articles/124 \
+    -H "Content-Type: application/json" \
+    -d '{
+      "title": "修改后的文章标题",
+      "content": "这是修改后的文章内容。"
+    }'
+  ```
+- **响应示例**:
+  - 成功 (200):
+    ```json
+    {
+      "id": 124,
+      "title": "修改后的文章标题",
+      "content": "这是修改后的文章内容。",
+      "image_url": "http://example.com/image.jpg", // 未修改则保持原样
+      "likes": 0,
+      "created_at": "2023-10-27T10:00:00Z",
+      "updated_at": "2023-10-27T10:05:00Z" // 更新时间已改变
+    }
+    ```
+  - 失败 (404):
+    ```json
+    {
+      "error": "文章不存在"
+    }
+    ```
+  - 失败 (400):
+    ```json
+    {
+      "error": "缺少请求体"
+    }
+    ```
+
+### 6. 文章点赞
+
 - **URL**: `/api/articles`
 - **方法**: GET
 - **描述**: 获取文章列表
@@ -179,7 +288,7 @@
     }
     ```
 
-### 4. 文章点赞
+### 7. 文章点赞
 
 - **URL**: `/api/articles/{id}/like`
 - **方法**: POST

@@ -190,9 +190,8 @@ export default {
 .admin-article-manage-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  /* Keep width 100vw if full screen is desired, or adjust if needed */
-  width: 100vw; 
+  height: 100vh; /* Use height instead of min-height */
+  width: 100%; /* Use 100% width to avoid potential horizontal overflow */ 
   background-color: #fff;
   box-shadow: none;
   margin: 0;
@@ -238,8 +237,8 @@ export default {
   flex-grow: 1;
   display: flex;
   justify-content: center;
-  /* align-items: center; /* Remove vertical centering if form should start higher */
-  padding: 40px 0; /* Add some padding */
+  /* align-items: center; */
+  padding: 20px 0; /* Reduced top/bottom padding */
   margin: 0;
   background: #fff;
   overflow-y: auto; /* Allow vertical scrolling within this area if content overflows */
