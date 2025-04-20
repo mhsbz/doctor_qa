@@ -55,7 +55,6 @@
           <div class="comment-item" v-for="comment in comments" :key="comment.id">
             <div class="comment-user">{{ comment.username }}</div>
             <div class="comment-content">{{ comment.content }}</div>
-            <div class="comment-time">{{ comment.createdAt }}</div>
             <!-- 管理员评论操作按钮 -->
             <div v-if="isAdmin" class="comment-actions">
               <button @click.stop="editComment(comment.id)" class="action-button edit-button">修改</button>
@@ -297,7 +296,7 @@ export default {
 
 .content-area {
   padding: 20px;
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
   background-color: white;
   border-radius: 8px;
@@ -403,17 +402,22 @@ export default {
   padding: 15px;
   background-color: #f9f9f9;
   border-radius: 8px;
+  display: flex;
+  align-items: center;
 }
 
 .comment-user {
   font-weight: bold;
-  margin-bottom: 5px;
   color: #333;
+  width: 100px;
+  flex-shrink: 0;
 }
 
 .comment-content {
   line-height: 1.5;
   color: #444;
+  flex-grow: 1;
+  text-align: center;
   margin-bottom: 5px;
 }
 
@@ -459,6 +463,44 @@ export default {
 
 .submit-button:hover {
   background-color: #1976d2;
+}
+
+.comment-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.action-button {
+  margin: 0;
+}
+
+.action-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background-color 0.3s, color 0.3s;
+  white-space: nowrap;
+}
+
+.edit-button {
+  background-color: #2196F3; /* Blue */
+  color: white;
+}
+
+.edit-button:hover {
+  background-color: #1e88e5;
+}
+
+.delete-button {
+  background-color: #f44336; /* Red */
+  color: white;
+}
+
+.delete-button:hover {
+  background-color: #e53935;
 }
 
 .loading-state {

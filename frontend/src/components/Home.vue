@@ -627,6 +627,7 @@ export default {
   font-size: 13px;
   font-weight: 500;
   transition: background-color 0.3s, color 0.3s;
+  white-space: nowrap;
 }
 
 .edit-button {
