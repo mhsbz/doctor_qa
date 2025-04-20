@@ -79,7 +79,6 @@ def delete_comment(comment_id):
     """
     删除评论
     :param comment_id: 评论ID
-    :param user: 当前用户对象
     :return: 被删除的评论ID
     """
     # 验证评论存在
@@ -87,6 +86,7 @@ def delete_comment(comment_id):
     if not comment:
         raise ValueError('评论不存在')
     
+    # 直接删除评论记录
     db.session.delete(comment)
     db.session.commit()
     return comment_id

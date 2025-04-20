@@ -123,9 +123,31 @@ def delete_article(article_id):
     删除指定ID的文章
     :param article_id: 文章ID
     """
+    from models.comment import Comment
+    
     article = Article.query.get(article_id)
     if not article:
         raise ValueError("文章不存在")
+
+    try:
+        # 删除关联评论
+        comments = Comment.query.filter_by(article_id=article_id).all()
+        for comment in comments:
+            db.session.delete(comment)
+        
+        # 删除关联点赞
+        # from models.user_like import UserLike
+        # likes = UserLike.query.filter_by(article_id=article_id).all()
+        # for like in likes:
+        #     db.session.delete(like)
+        
+        # 删除文章
+        db.session.delete(article)
+        db.session.commit()
+    except Exception as e:
+        print(e)
+        db.session.rollback()
+        raise e
 
     # 可选：删除关联的评论或点赞记录，取决于业务逻辑
     # from models.comment import Comment
