@@ -75,17 +75,13 @@ def update_comment(data, user):
     return comment
 
 
-def delete_comment(comment_id, user):
+def delete_comment(comment_id):
     """
     删除评论
     :param comment_id: 评论ID
     :param user: 当前用户对象
     :return: 被删除的评论ID
     """
-    # 验证用户权限
-    if user.user_type != 'admin':
-        raise ValueError('只有管理员可以删除评论')
-    
     # 验证评论存在
     comment = Comment.query.get(comment_id)
     if not comment:

@@ -54,11 +54,23 @@
         <div class="comment-list" v-if="comments.length > 0">
           <div class="comment-item" v-for="comment in comments" :key="comment.id">
             <div class="comment-user">{{ comment.username }}</div>
-            <div class="comment-content">{{ comment.content }}</div>
+            <div class="comment-content">
+              <template v-if="editingCommentId === comment.id">
+                <textarea 
+                  v-model="editingCommentContent"
+                  class="edit-comment-input"
+                ></textarea>
+                <button @click="saveEditedComment" class="save-button">保存</button>
+                <button @click="editingCommentId = null" class="cancel-button">取消</button>
+              </template>
+              <template v-else>
+                {{ comment.content }}
+              </template>
+            </div>
             <!-- 管理员评论操作按钮 -->
             <div v-if="isAdmin" class="comment-actions">
               <button @click.stop="editComment(comment.id)" class="action-button edit-button">修改</button>
-              <button @click.stop="deleteComment(comment.id)" class="action-button delete-button">删除</button>
+              <button @click.stop="deleteCommentClick(comment.id)" class="action-button delete-button">删除</button>
             </div>
           </div>
         </div>
@@ -86,8 +98,9 @@
 
 <script>
 import { getArticleById } from '../services/articleService';
-import { apiPost, apiGet } from '../services/apiService';
+import { apiPost, apiPut,apiGet } from '../services/apiService';
 import { getUserInfo } from '../services/authService';
+import { deleteComment } from '../services/commentService';
 
 export default {
   name: 'ArticleDetail',
@@ -98,7 +111,9 @@ export default {
       newComment: '',
       hasLiked: false,
       showUserMenu: false,
-      isAdmin: false
+      isAdmin: false,
+      editingCommentId: null,
+      editingCommentContent: ''
     };
   },
   methods: {
@@ -130,12 +145,31 @@ export default {
       }
     },
     editComment(commentId) {
-      // 实现修改评论逻辑
-      console.log('修改评论:', commentId);
+      const targetComment = this.comments.find(c => c.id === commentId);
+      this.editingCommentId = commentId;
+      this.editingCommentContent = targetComment.content;
     },
-    deleteComment(commentId) {
-      // 实现删除评论逻辑
-      console.log('删除评论:', commentId);
+    async saveEditedComment() {
+      try {
+        await apiPut(`comments/${this.editingCommentId}`, {
+          content: this.editingCommentContent,
+          user_id: getUserInfo().user_id
+        });
+        const updatedComment = this.comments.find(c => c.id === this.editingCommentId);
+        updatedComment.content = this.editingCommentContent;
+        this.editingCommentId = null;
+      } catch (error) {
+        console.error('修改评论失败:', error);
+      }
+    },
+    async deleteCommentClick(commentId) {    
+      try {
+        await deleteComment(commentId);
+        this.comments = this.comments.filter(c => c.id !== commentId);
+      } catch (error) {
+        console.error('删除评论失败:', error);
+        alert('删除评论失败，请稍后重试');
+      }
     },
     async fetchArticleDetail() {
       try {

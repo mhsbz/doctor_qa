@@ -19,3 +19,11 @@ export const createComment = async (articleId, content, userId, options = {}) =>
   }
   return data;
 };
+
+export const deleteComment = async (commentId) => {
+  try {
+    await apiDelete(`comments/${commentId}`);
+  } catch (error) {
+    throw new Error(error.message || '删除评论失败');
+  }
+};
