@@ -74,9 +74,45 @@
     </div>
 
     <!-- AI问答区域 -->
-    <div class="content-area" v-if="currentTab === 'ai'">
+    <div class="content-area" v-if="currentTab === 'ai' && !isAdmin">
+      <div class="ai-chat-container">
+        <div class="chat-messages">
+          <div class="welcome-message">
+            <h2>Hello, ChatGPT!</h2>
+          </div>
+          <div v-for="(message, index) in chatMessages" :key="index" 
+              :class="['message', message.sender === 'user' ? 'user-message' : 'ai-message']">
+            <div class="message-content">{{ message.content }}</div>
+          </div>
+        </div>
+        <div class="chat-input">
+          <div class="chat-input-container" style="display: flex; gap: 8px; min-width: 100%">
+            <input 
+              type="text" 
+              v-model="userInput" 
+              placeholder="输入问题..." 
+              @keyup.enter="sendMessage"
+              class="input-field"
+              style="flex: 1;"
+            />
+            <button 
+              class="voice-button"
+              @mousedown="startSpeechRecognition"
+              @mouseup="stopSpeechRecognition"
+              @touchstart="startSpeechRecognition"
+              @touchend="stopSpeechRecognition"
+            >
+              🎤
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 管理员访问AI问答的提示 -->
+    <div class="content-area" v-if="currentTab === 'ai' && isAdmin">
       <div class="placeholder-content">
-        AI问答功能正在开发中...
+        AI问答功能仅对普通用户开放，管理员无法访问此功能。
       </div>
     </div>
 
@@ -165,6 +201,15 @@ export default {
       feedbackDescription: '',
       isSubmitting: false,
       submitResult: null,
+      // --- Chat Data ---
+      userInput: '',
+      chatMessages: [
+        // 初始消息可以为空，或者添加一条欢迎消息
+        { sender: 'ai', content: '您好！我是AI助手，有什么健康问题需要咨询吗？' }
+      ],
+      recognition: null,
+      isRecognizing: false,
+      interimTranscript: '', // 临时识别结果
       // --- Admin Data ---
       isAdmin: false,
       adminName: '',
@@ -179,17 +224,14 @@ export default {
         this.$router.push('/admin/feedback-stats');
         return; // 阻止后续设置 currentTab
       }
-
-      // 对于非管理员或非反馈标签，正常切换
+      
+      // 如果是管理员点击AI问答，显示提示但仍切换标签
+      // 对于普通用户或其他标签，正常切换
       this.currentTab = tab;
       // 如果切换到健康资讯tab，确保文章列表是最新的
       if (tab === 'health') {
         this.fetchArticles();
       }
-      // 不再需要这里的管理员反馈逻辑
-      // else if (tab === 'feedback' && this.isAdmin) {
-      //   this.fetchFeedbacks(); 
-      // }
     },
     viewArticle(id) {
       console.log('查看文章详情:', id);
@@ -207,7 +249,6 @@ export default {
       this.$router.push('/user-profile');
     },
     goToUserLikes() {
-      this.showDropdown = false;
       this.showDropdown = false;
       this.$router.push('/user-likes');
     },
@@ -265,6 +306,78 @@ export default {
       return new Date(dateString).toLocaleDateString(undefined, options);
     },
     // --- End Admin Methods ---
+    // --- Chat Methods ---
+    startSpeechRecognition() {
+      this.interimTranscript = '';
+      this.recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      this.recognition.lang = 'zh-CN';
+      this.recognition.interimResults = true;
+      
+      this.recognition.onresult = (event) => {
+        this.interimTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          if (event.results[i].isFinal) {
+            this.userInput += event.results[i][0].transcript;
+          } else {
+            this.interimTranscript += event.results[i][0].transcript;
+          }
+        }
+      };
+      
+      this.recognition.onerror = (event) => {
+        console.error('语音识别错误:', event.error);
+      };
+      
+      this.recognition.start();
+      this.isRecognizing = true;
+    },
+    
+    stopSpeechRecognition() {
+      if (this.recognition) {
+        this.recognition.stop();
+        this.isRecognizing = false;
+      }
+    },
+    
+    async sendMessage() {
+      if (!this.userInput.trim()) return;
+      
+      // 将用户消息添加到聊天记录
+      const userMessage = {
+        sender: 'user',
+        content: this.userInput
+      };
+      this.chatMessages.push(userMessage);
+      
+      // 清空输入框
+      const userQuestion = this.userInput;
+      this.userInput = '';
+      
+      // 模拟AI回复（后期可替换为真实API调用）
+      setTimeout(async () => {
+        try {
+          // 这里可以替换为实际的API调用
+          // const response = await apiPost('ai/chat', { question: userQuestion });
+          // const aiResponse = response.answer;
+          
+          // 模拟回复
+          const aiResponse = "这是AI助手对您问题的回复。在实际开发中，这里将调用后端API获取真实的AI回答。";
+          
+          this.chatMessages.push({
+            sender: 'ai',
+            content: aiResponse
+          });
+        } catch (error) {
+          console.error('获取AI回复失败:', error);
+          this.chatMessages.push({
+            sender: 'ai',
+            content: '抱歉，系统暂时无法回应，请稍后再试。'
+          });
+        }
+      }, 1000);
+    },
+    // --- End Chat Methods ---
+    
     async submitFeedback() {
       // 表单验证
       if (!this.feedbackType) {
@@ -863,5 +976,98 @@ export default {
   background-color: #ffebee;
   color: #c62828;
   border: 1px solid #ffcdd2;
+}
+
+/* AI聊天界面样式 */
+.ai-chat-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 100px);
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.welcome-message {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.welcome-message h2 {
+  font-size: 24px;
+  color: #333;
+}
+
+.message {
+  max-width: 70%;
+  padding: 12px 16px;
+  border-radius: 18px;
+  word-break: break-word;
+}
+
+.user-message {
+  align-self: flex-end;
+  background-color: #1e88e5;
+  color: white;
+}
+
+.ai-message {
+  align-self: flex-start;
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+.chat-input {
+  display: flex;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-top: 1px solid #eee;
+}
+
+.input-field {
+  flex: 1;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 14px;
+  outline: none;
+}
+
+.input-field:focus {
+  border-color: #2196f3;
+}
+
+.send-button {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  margin-left: 10px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s;
+}
+
+.send-button:hover {
+  background-color: #1976d2;
+}
+
+.send-icon {
+  font-size: 14px;
+  font-weight: bold;
 }
 </style>
