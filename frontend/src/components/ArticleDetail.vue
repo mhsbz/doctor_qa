@@ -83,6 +83,7 @@
 <script>
 import { getArticleById } from '../services/articleService';
 import { apiPost, apiGet } from '../services/apiService';
+import { getUserInfo } from '../services/authService';
 
 export default {
   name: 'ArticleDetail',
@@ -175,9 +176,10 @@ export default {
       try {
         const commentData = {
           article_id: this.$route.params.id,
-          content: this.newComment
+          content: this.newComment,
+          user_id: getUserInfo().user_id
         };
-        
+
         await apiPost('comments', commentData);
         this.newComment = '';
         // 重新获取评论列表

@@ -174,12 +174,19 @@ export default {
   },
   methods: {
     switchTab(tab) {
+      // 如果是管理员点击意见反馈，则直接跳转
+      if (tab === 'feedback' && this.isAdmin) {
+        this.$router.push('/admin/feedback-stats');
+        return; // 阻止后续设置 currentTab
+      }
+
+      // 对于非管理员或非反馈标签，正常切换
       this.currentTab = tab;
       // 如果切换到健康资讯tab，确保文章列表是最新的
       if (tab === 'health') {
         this.fetchArticles();
       }
-      // 如果切换到意见反馈tab，并且是管理员，可以加载意见列表
+      // 不再需要这里的管理员反馈逻辑
       // else if (tab === 'feedback' && this.isAdmin) {
       //   this.fetchFeedbacks(); 
       // }

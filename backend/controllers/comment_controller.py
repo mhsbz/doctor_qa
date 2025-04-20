@@ -16,6 +16,7 @@ def get_comments(article_id):
 @comment_bp.route('/comments', methods=['POST'])
 def handle_create_comment():
     data = request.get_json()
+    print(data)
     try:
         result = create_comment(data)
         return jsonify({
