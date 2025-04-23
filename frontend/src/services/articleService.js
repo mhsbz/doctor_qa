@@ -78,10 +78,32 @@ export const deleteArticle = async (id) => {
   }
 };
 
+export const likeArticle = async (articleId, userId) => {
+  try {
+    return await apiPost(`articles/${articleId}/like`, {
+      user_id: userId
+    });
+  } catch (error) {
+    console.error(`点赞文章失败 (ID: ${articleId}):`, error);
+    throw error;
+  }
+};
+
+export const checkArticleLikeStatus = async (articleId, userId) => {
+  try {
+    return await apiGet(`articles/${articleId}/like_status?user_id=${userId}`);
+  } catch (error) {
+    console.error(`检查点赞状态失败 (文章ID: ${articleId})：`, error);
+    throw error;
+  }
+};
+
 export default {
   getArticles,
   getArticleById,
   createArticle,
   updateArticle,
-  deleteArticle
+  deleteArticle,
+  likeArticle,
+  checkArticleLikeStatus
 };

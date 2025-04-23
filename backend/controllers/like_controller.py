@@ -44,6 +44,32 @@ def get_user_likes(user_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@like_bp.route('/articles/<int:article_id>/like_status', methods=['GET'])
+def check_like_status(article_id):
+    """
+    检查用户是否点赞文章
+    """
+    try:
+        user_id = request.args.get('user_id')
+        
+        if not user_id:
+            return jsonify({'error': '缺少用户ID'}), 400
+        
+        article = Article.query.get(article_id)
+        if not article:
+            return jsonify({'error': '文章不存在'}), 404
+        
+        existing_like = UserLike.query.filter_by(
+            user_id=user_id,
+            article_id=article_id
+        ).first()
+        
+        return jsonify({'has_liked': existing_like is not None}), 200
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @like_bp.route('/articles/<int:article_id>/like', methods=['POST'])
 def like_article(article_id):
     """

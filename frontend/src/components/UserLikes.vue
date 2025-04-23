@@ -46,6 +46,7 @@ export default {
   data() {
     return {
       likedArticles: [],
+      backendUrl: 'http://127.0.0.1:5000', // 后端服务器地址
       loading: true
     }
   },
@@ -78,7 +79,10 @@ export default {
           id: article.id,
           title: article.title,
           summary: article.content,
-          imageUrl: article.image_url,
+          // 如果 image_url 是相对路径，则添加后端地址前缀
+          imageUrl: article.image_url && article.image_url.startsWith('/') 
+                      ? `${this.backendUrl}${article.image_url}` 
+                      : article.image_url,
           likeDate: article.like_date
         }));
       } catch (error) {

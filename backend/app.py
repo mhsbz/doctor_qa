@@ -39,6 +39,9 @@ from controllers.article_controller import article_bp
 from controllers.comment_controller import comment_bp
 from controllers.feedback_controller import feedback_bp
 from controllers.chat_controller import chat_bp
+from controllers.like_controller import like_bp
+
+app.register_blueprint(like_bp, url_prefix='/api')
 app.register_blueprint(user_bp, url_prefix='/api')
 app.register_blueprint(article_bp, url_prefix='/api')
 app.register_blueprint(comment_bp, url_prefix='/api')

@@ -98,9 +98,10 @@
 
 <script>
 import { getArticleById } from '../services/articleService';
-import { apiPost, apiPut,apiGet } from '../services/apiService';
+import { apiPost, apiPut, apiGet } from '../services/apiService';
 import { getUserInfo } from '../services/authService';
 import { deleteComment } from '../services/commentService';
+import { checkArticleLikeStatus, likeArticle } from '../services/articleService';
 
 export default {
   name: 'ArticleDetail',
@@ -109,7 +110,8 @@ export default {
       article: null,
       comments: [],
       newComment: '',
-      hasLiked: false,
+      hasLiked: true, // 用户是否已点赞
+      backendUrl: 'http://127.0.0.1:5000', // 后端服务器地址，用于拼接图片URL
       showUserMenu: false,
       isAdmin: false,
       editingCommentId: null,
@@ -179,7 +181,10 @@ export default {
           id: articleData.id,
           title: articleData.title,
           content: articleData.content,
-          imageUrl: articleData.image_url,
+          // 如果 image_url 是相对路径 (e.g., /uploads/...)，则添加后端地址前缀
+          imageUrl: articleData.image_url && articleData.image_url.startsWith('/') 
+                      ? `${this.backendUrl}${articleData.image_url}` 
+                      : articleData.image_url,
           publishDate: articleData.updated_at ? new Date(articleData.updated_at).toLocaleDateString('zh-CN') : '发布时间未知',
           author: articleData.author || '匿名作者',
           likes: articleData.likes || 0
@@ -201,6 +206,21 @@ export default {
         console.error('获取文章详情失败:', error);
       }
     },
+    async checkLikeStatus() {
+      try {
+        const articleId = this.$route.params.id;
+        const userInfo = getUserInfo();
+        if (!userInfo || this.isAdmin) return; // 未登录或管理员不检查点赞状态
+        const response = await checkArticleLikeStatus(articleId, userInfo.user_id);
+        console.log(response);
+        this.hasLiked = response.has_liked;
+        
+      } catch (error) {
+        // 如果获取状态失败，则假定未点赞，允许用户点赞
+        console.error('检查点赞状态失败:', error);
+        this.hasLiked = false; 
+      }
+    },
     async fetchComments() {
       try {
         const articleId = this.$route.params.id;
@@ -215,9 +235,11 @@ export default {
       
       try {
         const articleId = this.$route.params.id;
-        const response = await apiPost(`articles/${articleId}/like`);
+        const userId = getUserInfo().user_id;
+        const response = await likeArticle(articleId, userId);
         this.article.likes = response.likes;
         this.hasLiked = true;
+        // 移除冗余的liked赋值
       } catch (error) {
         console.error('点赞失败:', error);
       }
@@ -239,6 +261,8 @@ export default {
           content: this.newComment,
           user_id: getUserInfo().user_id
         };
+        // 检查用户是否已点赞此文章
+        this.checkLikeStatus();
 
         await apiPost('comments', commentData);
         this.newComment = '';
@@ -250,318 +274,307 @@ export default {
     }
   },
   mounted() {
-    // 获取文章详情，文章详情API已包含评论数据
+    // 获取文章详情（包含评论）并检查点赞状态
     this.fetchArticleDetail();
     // 检查用户角色
     this.checkUserRole();
+    // 检查点赞状态
+    this.checkLikeStatus();
   }
-};
+}
 </script>
+<style scoped>;
+  .nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 60px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 0 20px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
 
-<style scoped>
-.article-detail-container {
-  width: 100%;
-  height: 100vh;
-  background-color: #f5f5f5;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow-y: auto;
-}
+  .back-button {
+    cursor: pointer;
+    font-weight: bold;
+    color: #2196f3;
+  }
 
-.nav-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 60px;
-  background-color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 0 20px;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
+  .title {
+    font-size: 18px;
+    font-weight: bold;
+  }
 
-.back-button {
-  cursor: pointer;
-  font-weight: bold;
-  color: #2196f3;
-}
+  .user-menu {
+    position: relative;
+    width: 50px;
+    display: flex;
+    justify-content: center;
+  }
 
-.title {
-  font-size: 18px;
-  font-weight: bold;
-}
+  .user-icon {
+    cursor: pointer;
+    font-size: 24px;
+  }
 
-.user-menu {
-  position: relative;
-  width: 50px;
-  display: flex;
-  justify-content: center;
-}
+  .dropdown-menu {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    width: 120px;
+    z-index: 100;
+  }
 
-.user-icon {
-  cursor: pointer;
-  font-size: 24px;
-}
+  .menu-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
 
-.dropdown-menu {
-  position: absolute;
-  top: 40px;
-  right: 0;
-  background-color: white;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  width: 120px;
-  z-index: 100;
-}
+  .menu-item:hover {
+    background-color: #f5f5f5;
+  }
 
-.menu-item {
-  padding: 10px 15px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
+  .content-area {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
 
-.menu-item:hover {
-  background-color: #f5f5f5;
-}
+  .article-image {
+    width: 100%;
+    height: 300px;
+    background-color: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
 
-.content-area {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-top: 20px;
-  margin-bottom: 20px;
-}
+  .placeholder-image {
+    color: #999;
+    text-align: center;
+    font-size: 18px;
+  }
 
-.article-image {
-  width: 100%;
-  height: 300px;
-  background-color: #eee;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
-  border-radius: 8px;
-  overflow: hidden;
-}
+  .real-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 
-.placeholder-image {
-  color: #999;
-  text-align: center;
-  font-size: 18px;
-}
+  .article-title {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #333;
+  }
 
-.real-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+  .article-meta {
+    display: flex;
+    gap: 15px;
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
 
-.article-title {
-  font-size: 24px;
-  margin-bottom: 10px;
-  color: #333;
-}
+  .article-content {
+    line-height: 1.8;
+    color: #444;
+    margin-bottom: 30px;
+  }
 
-.article-meta {
-  display: flex;
-  gap: 15px;
-  color: #888;
-  font-size: 14px;
-  margin-bottom: 20px;
-}
+  .like-section {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+  }
 
-.article-content {
-  line-height: 1.8;
-  color: #444;
-  margin-bottom: 30px;
-}
+  .like-button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 20px;
+    border-radius: 20px;
+    background-color: #f5f5f5;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
 
-.like-section {
-  display: flex;
-  justify-content: center;
-  margin: 30px 0;
-}
+  .like-button:hover {
+    background-color: #ffebee;
+  }
 
-.like-button {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 8px 20px;
-  border-radius: 20px;
-  background-color: #f5f5f5;
-  cursor: pointer;
-  transition: all 0.3s;
-}
+  .like-button.liked {
+    background-color: #ffebee;
+    color: #e91e63;
+  }
 
-.like-button:hover {
-  background-color: #ffebee;
-}
+  .like-icon {
+    font-size: 20px;
+  }
 
-.like-button.liked {
-  background-color: #ffebee;
-  color: #e91e63;
-}
+  .comment-section {
+    margin-top: 30px;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+  }
 
-.like-icon {
-  font-size: 20px;
-}
+  .comment-title {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #333;
+  }
 
-.comment-section {
-  margin-top: 30px;
-  border-top: 1px solid #eee;
-  padding-top: 20px;
-}
+  .comment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+  }
 
-.comment-title {
-  font-size: 18px;
-  margin-bottom: 20px;
-  color: #333;
-}
+  .comment-item {
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+  }
 
-.comment-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-bottom: 30px;
-}
+  .comment-user {
+    font-weight: bold;
+    color: #333;
+    width: 100px;
+    flex-shrink: 0;
+  }
 
-.comment-item {
-  padding: 15px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-}
+  .comment-content {
+    line-height: 1.5;
+    color: #444;
+    flex-grow: 1;
+    text-align: center;
+    margin-bottom: 5px;
+  }
 
-.comment-user {
-  font-weight: bold;
-  color: #333;
-  width: 100px;
-  flex-shrink: 0;
-}
+  .comment-time {
+    font-size: 12px;
+    color: #888;
+  }
 
-.comment-content {
-  line-height: 1.5;
-  color: #444;
-  flex-grow: 1;
-  text-align: center;
-  margin-bottom: 5px;
-}
+  .no-comments {
+    text-align: center;
+    padding: 20px;
+    color: #888;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+  }
 
-.comment-time {
-  font-size: 12px;
-  color: #888;
-}
+  .comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
 
-.no-comments {
-  text-align: center;
-  padding: 20px;
-  color: #888;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-}
+  .comment-input {
+    width: 100%;
+    height: 100px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    resize: none;
+    font-family: inherit;
+  }
 
-.comment-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+  .submit-button {
+    align-self: flex-end;
+    padding: 8px 20px;
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+  }
 
-.comment-input {
-  width: 100%;
-  height: 100px;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  resize: none;
-  font-family: inherit;
-}
+  .submit-button:hover {
+    background-color: #1976d2;
+  }
 
-.submit-button {
-  align-self: flex-end;
-  padding: 8px 20px;
-  background-color: #2196f3;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-}
+  .comment-actions {
+    display: flex;
+    gap: 5px;
+  }
 
-.submit-button:hover {
-  background-color: #1976d2;
-}
+  .action-button {
+    margin: 0;
+  }
 
-.comment-actions {
-  display: flex;
-  gap: 5px;
-}
+  .action-button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background-color 0.3s, color 0.3s;
+    white-space: nowrap;
+  }
 
-.action-button {
-  margin: 0;
-}
+  .edit-button {
+    background-color: #2196F3; /* Blue */
+    color: white;
+  }
 
-.action-button {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  transition: background-color 0.3s, color 0.3s;
-  white-space: nowrap;
-}
+  .edit-button:hover {
+    background-color: #1e88e5;
+  }
 
-.edit-button {
-  background-color: #2196F3; /* Blue */
-  color: white;
-}
+  .delete-button {
+    background-color: #f44336; /* Red */
+    color: white;
+  }
 
-.edit-button:hover {
-  background-color: #1e88e5;
-}
+  .delete-button:hover {
+    background-color: #e53935;
+  }
 
-.delete-button {
-  background-color: #f44336; /* Red */
-  color: white;
-}
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+  }
 
-.delete-button:hover {
-  background-color: #e53935;
-}
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #2196f3;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+  }
 
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 300px;
-}
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
 
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #2196f3;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 15px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.loading-text {
-  color: #666;
-  font-size: 16px;
-}
+  .loading-text {
+    color: #666;
+    font-size: 16px;
+  }
 </style>
