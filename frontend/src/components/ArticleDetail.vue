@@ -102,6 +102,7 @@ import { apiPost, apiPut, apiGet } from '../services/apiService';
 import { getUserInfo } from '../services/authService';
 import { deleteComment } from '../services/commentService';
 import { checkArticleLikeStatus, likeArticle } from '../services/articleService';
+import { BACKEND_URL } from '../config'; // 导入后端 URL
 
 export default {
   name: 'ArticleDetail',
@@ -111,7 +112,6 @@ export default {
       comments: [],
       newComment: '',
       hasLiked: true, // 用户是否已点赞
-      backendUrl: 'http://127.0.0.1:5000', // 后端服务器地址，用于拼接图片URL
       showUserMenu: false,
       isAdmin: false,
       editingCommentId: null,
@@ -183,7 +183,7 @@ export default {
           content: articleData.content,
           // 如果 image_url 是相对路径 (e.g., /uploads/...)，则添加后端地址前缀
           imageUrl: articleData.image_url && articleData.image_url.startsWith('/') 
-                      ? `${this.backendUrl}${articleData.image_url}` 
+                      ? `${BACKEND_URL}${articleData.image_url}` // 使用导入的 BACKEND_URL
                       : articleData.image_url,
           publishDate: articleData.updated_at ? new Date(articleData.updated_at).toLocaleDateString('zh-CN') : '发布时间未知',
           author: articleData.author || '匿名作者',

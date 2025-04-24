@@ -446,7 +446,7 @@ export default {
         const response = await apiGet('articles'); 
         this.articles = response.map(article => ({
             ...article, // 保留所有原始字段，包括 id, title, created_at 等
-            imageUrl: article.image_url, 
+            imageUrl: "http://127.0.0.1:5000" + article.image_url, 
             // 如果后端不直接提供summary，则前端生成
             summary: article.content ? (article.content.length > 100 ? article.content.substring(0, 100) + '...' : article.content) : '暂无摘要'
         }));

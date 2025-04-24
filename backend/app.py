@@ -1,11 +1,14 @@
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
 import sys
+import os
 from pathlib import Path
+import uuid
+from werkzeug.utils import secure_filename
 
 # 将当前目录添加到Python路径中，解决导入问题
 sys.path.append(str(Path(__file__).parent))
@@ -17,6 +20,18 @@ from models.db import db
 load_dotenv()
 
 app = Flask(__name__)
+
+# 配置上传文件
+UPLOAD_FOLDER = os.path.join(Path(__file__).parent, 'uploads', 'images')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB Max Size
+
+# 确保上传目录存在
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+# 从 utils 导入文件检查函数
+from utils import allowed_file
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'mysql+mysqlconnector://root:password@localhost/doctor_qa')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # 配置CORS，允许所有来源、方法和头部
@@ -47,6 +62,11 @@ app.register_blueprint(article_bp, url_prefix='/api')
 app.register_blueprint(comment_bp, url_prefix='/api')
 app.register_blueprint(feedback_bp, url_prefix='/api')
 app.register_blueprint(chat_bp, url_prefix='/api')
+
+# 添加静态文件服务路由
+@app.route('/uploads/images/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 if __name__ == '__main__':
     with app.app_context():

@@ -56,8 +56,9 @@
 </template>
 
 <script>
-import { apiPost, apiPut, apiGet } from '../services/apiService'; // 假设apiService已包含上传逻辑或需要单独处理
+import { apiPost, apiPut, apiGet, apiPostFormData } from '../services/apiService'; // 引入 apiPostFormData
 import { getUserInfo } from '../services/authService';
+import { BACKEND_URL } from '../config'; // 导入后端 URL
 
 export default {
   name: 'AdminArticleManage',
@@ -110,28 +111,36 @@ export default {
       this.submitMessage = '';
       this.submitStatus = '';
 
-      // TODO: Implement image upload if a file is selected
-      // if (this.selectedFile) { ... upload logic ... update article.image_url ... }
+      const formData = new FormData();
+      formData.append('title', this.article.title);
+      formData.append('content', this.article.content);
+
+      // Add image if selected
+      if (this.selectedFile) {
+        formData.append('image', this.selectedFile, this.selectedFile.name);
+      }
+      // If editing, add the ID to the form data (backend needs to handle this)
+      // Assuming the backend keeps the image if 'image' field is not present in FormData.
+      if (this.isEditMode) {
+         formData.append('id', this.article.id); // Assuming backend uses 'id' field for update
+      }
 
       try {
         let response;
-        const articleData = {
-          title: this.article.title,
-          content: this.article.content,
-          image_url: this.article.image_url || null, // Use uploaded URL or null
-        };
+        let endpoint = 'articles'; // Base endpoint for POST
+
+        // Use apiPostFormData for both create and update.
+        // Backend's POST /articles endpoint needs to handle updates if 'id' is present.
+        response = await apiPostFormData(endpoint, formData);
 
         if (this.isEditMode) {
-          // 修改文章
-          response = await apiPut(`articles/${this.article.id}`, articleData);
           this.submitMessage = '文章修改成功！';
+          // Optionally update local state if response contains updated data
         } else {
-          // 发布新文章
-          response = await apiPost('articles', articleData);
           this.submitMessage = '文章发布成功！';
-          // 发布成功后清空表单
-          this.resetForm();
+          this.resetForm(); // Reset only for new articles
         }
+
         this.submitStatus = 'success';
         console.log('提交结果:', response);
         // 可选：短暂显示成功消息后跳转回列表页
@@ -160,8 +169,12 @@ export default {
         this.article.id = data.id;
         this.article.title = data.title;
         this.article.content = data.content;
-        this.article.image_url = data.image_url;
-        this.imagePreviewUrl = data.image_url || ''; // Use existing image URL for preview
+        this.article.image_url = data.image_url; // Store the original URL from backend
+        // Prepend backend URL if image_url is a relative path
+        // const backendUrl = 'http://127.0.0.1:5000'; // Define or import backend URL - Removed hardcoded URL
+        this.imagePreviewUrl = data.image_url && data.image_url.startsWith('/') 
+                               ? `${BACKEND_URL}${data.image_url}` // 使用导入的 BACKEND_URL
+                               : data.image_url || ''; // Use existing image URL for preview, add prefix if relative
       } catch (error) {
         console.error('获取文章数据失败:', error);
         this.submitMessage = '加载文章数据失败';

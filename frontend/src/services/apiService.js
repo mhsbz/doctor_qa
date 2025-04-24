@@ -99,6 +99,33 @@ export const apiPut = async (endpoint, body, options = {}) => {
  * @param {Object} options - 请求选项
  * @returns {Promise<any>} - 请求结果
  */
+/**
+ * 发送包含 FormData 的 POST 请求 (用于文件上传)
+ * @param {string} endpoint - API 端点
+ * @param {FormData} formData - FormData 对象
+ * @param {Object} options - 请求选项
+ * @returns {Promise<any>} - 请求结果
+ */
+export const apiPostFormData = async (endpoint, formData, options = {}) => {
+  const url = createApiUrl(endpoint);
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      // 注意：当使用 FormData 时，浏览器会自动设置 Content-Type 为 multipart/form-data
+      // 不要手动设置 'Content-Type': 'multipart/form-data'，否则可能导致边界(boundary)丢失
+      ...options.headers // 允许覆盖或添加其他头部，例如认证 Token
+    },
+    body: formData,
+    ...options
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || '请求失败');
+  }
+  return data;
+};
+
 export const apiDelete = async (endpoint, options = {}) => {
   const url = createApiUrl(endpoint);
   const response = await fetch(url, {
@@ -124,6 +151,7 @@ export default {
   apiGet,
   apiPost,
   apiPut,
+  apiPostFormData, // 添加新的方法
   apiDelete,
   getApiBaseUrl
 };
