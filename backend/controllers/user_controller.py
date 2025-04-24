@@ -55,7 +55,7 @@ def update_profile():
         return jsonify({'error': '缺少用户ID'}), 400
     
     # 可更新的字段
-    updateable_fields = ['username', 'gender', 'region', 'phone', 'email']
+    updateable_fields = ['username', 'gender', 'region', 'phone', 'email', "password"]
     
     # 检查是否有至少一个可更新字段
     if not any(field in data for field in updateable_fields):

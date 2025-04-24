@@ -36,6 +36,16 @@
         <input type="email" id="email" v-model="userInfo.email" placeholder="请输入邮箱">
       </div>
       
+      <div class="form-group">
+        <label for="password">新密码</label>
+        <input type="password" id="password" v-model="userInfo.password" placeholder="请输入新密码">
+      </div>
+      
+      <div class="form-group">
+        <label for="confirmPassword">确认密码</label>
+        <input type="password" id="confirmPassword" v-model="userInfo.confirmPassword" placeholder="请再次输入密码">
+      </div>
+      
       <button class="save-button" @click="saveProfile">保存修改</button>
       
       <div v-if="message" :class="['message', messageType]">
@@ -59,7 +69,9 @@ export default {
         gender: '',
         region: '',
         phone: '',
-        email: ''
+        email: '',
+        password: '',
+        confirmPassword: ''
       },
       message: '',
       messageType: 'success'
@@ -78,6 +90,12 @@ export default {
           return;
         }
         
+        if (this.userInfo.password && this.userInfo.password !== this.userInfo.confirmPassword) {
+          this.message = '两次输入的密码不一致';
+          this.messageType = 'error';
+          return;
+        }
+        
         // 准备更新数据
         const updateData = {
           user_id: this.userInfo.user_id,
@@ -85,7 +103,8 @@ export default {
           gender: this.userInfo.gender,
           region: this.userInfo.region,
           phone: this.userInfo.phone,
-          email: this.userInfo.email
+          email: this.userInfo.email,
+          password: this.userInfo.password
         };
         
         // 发送更新请求

@@ -74,6 +74,8 @@ def update_user_info(user_data):
             user.phone = user_data['phone']
         if 'email' in user_data:
             user.email = user_data['email']
+        if 'password' in user_data:
+            user.password = user_data['password']
         
         db.session.commit()
         
