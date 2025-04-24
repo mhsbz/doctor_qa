@@ -11,6 +11,7 @@ class Article(db.Model):
     likes = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    user_id = db.Column(db.Integer, default=0)
     
     def __repr__(self):
         return f'<Article {self.title}>'

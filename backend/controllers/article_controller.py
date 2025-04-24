@@ -14,11 +14,12 @@ def get_articles():
 
 @article_bp.route('/articles', methods=['POST'])
 def post_article():
-    if 'title' not in request.form or 'content' not in request.form:
-        return jsonify({"error": "缺少标题或内容"}), 400
+    if 'title' not in request.form or 'content' not in request.form or 'user_id' not in request.form:
+        return jsonify({"error": "缺少标题、内容或用户ID"}), 400
 
     title = request.form['title']
     content = request.form['content']
+    user_id = request.form['user_id'] # 获取 user_id
     image_file = request.files.get('image')
     image_url = None
 
@@ -38,7 +39,8 @@ def post_article():
              return jsonify({"error": f"文件上传失败: {str(e)}"}), 500
 
     try:
-        article_data = {'title': title, 'content': content, 'image_url': image_url}
+        article_data = {'title': title, 'content': content, 'image_url': image_url,'user_id':user_id}
+        # 将 user_id 传递给服务层函数
         new_article = create_article(article_data)
         return jsonify(new_article), 201
     except Exception as e:

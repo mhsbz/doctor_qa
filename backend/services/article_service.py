@@ -1,6 +1,7 @@
 from models.article import Article, db
 from services.comment_service import get_comments_by_article
 from datetime import datetime
+from models.user import User
 
 def get_articles_list():
     """
@@ -14,6 +15,7 @@ def get_articles_list():
         'content': a.content,
         'image_url': a.image_url,
         'likes': a.likes,
+        "created_at": a.created_at
     } for a in articles]
 
 
@@ -29,12 +31,15 @@ def get_article_detail(article_id):
     
     # 获取文章评论
     comments = get_comments_by_article(article_id)
+
+    user = User.query.filter_by(id=article.user_id).first()
     
     return {
         'id': article.id,
         'title': article.title,
         'content': article.content,
         'image_url': article.image_url,
+        'author': user.username,
         'likes': article.likes,
         'updated_at': article.updated_at.isoformat(),
         'comments': comments
@@ -50,6 +55,7 @@ def create_article(data):
     try:
         new_article = Article(
             title=data['title'],
+            user_id=data['user_id'],
             content=data['content'],
             image_url=data.get('image_url'), # image_url 是可选的
             created_at=datetime.utcnow(),
@@ -63,6 +69,7 @@ def create_article(data):
             'content': new_article.content,
             'image_url': new_article.image_url,
             'likes': new_article.likes,
+            'user_id': new_article.user_id,
             'created_at': new_article.created_at.isoformat(),
             'updated_at': new_article.updated_at.isoformat()
         }

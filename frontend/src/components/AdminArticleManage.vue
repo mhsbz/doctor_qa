@@ -114,6 +114,7 @@ export default {
       const formData = new FormData();
       formData.append('title', this.article.title);
       formData.append('content', this.article.content);
+      formData.append('user_id',getUserInfo().user_id)
 
       // Add image if selected
       if (this.selectedFile) {
